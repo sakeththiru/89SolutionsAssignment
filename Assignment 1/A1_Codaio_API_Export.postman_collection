@@ -1,0 +1,389 @@
+{
+	"info": {
+		"_postman_id": "0bad8f9b-8180-436d-a798-7b16a7504797",
+		"name": "Coda.io API Export",
+		"description": "Complete Postman collection for exporting Coda.io pages to HTML using the correct API workflow",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "48756799",
+		"_collection_link": "https://sakethsriramthiru-7253327.postman.co/workspace/68616165-d0f2-4718-8fb2-874e90c6f6ef/collection/48756799-0bad8f9b-8180-436d-a798-7b16a7504797?action=share&source=collection_link&creator=48756799"
+	},
+	"item": [
+		{
+			"name": "1. Authentication Test",
+			"item": [
+				{
+					"name": "Test API Connection",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{api_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/docs",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"docs"
+							]
+						},
+						"description": "Test basic API connectivity by listing documents"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2. Document Discovery",
+			"item": [
+				{
+					"name": "List Pages in Document",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{api_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/docs/{{document_id}}/pages",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"docs",
+								"{{document_id}}",
+								"pages"
+							]
+						},
+						"description": "List all pages in the specified document"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Page Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{api_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/docs/{{document_id}}/pages/{{page_name}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"docs",
+								"{{document_id}}",
+								"pages",
+								"{{page_name}}"
+							]
+						},
+						"description": "Get detailed information about a specific page"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "3. HTML Export Workflow",
+			"item": [
+				{
+					"name": "Step 1: Start Export Request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200 || pm.response.code === 202) {",
+									"    const responseJson = pm.response.json();",
+									"    console.log(\"Full response:\", responseJson);",
+									"    if (responseJson.id) {",
+									"        pm.collectionVariables.set(\"request_id\", responseJson.id);",
+									"        console.log(\"✅ Request ID set to:\", responseJson.id);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{api_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"outputFormat\": \"html\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/docs/{{document_id}}/pages/{{page_id}}/export",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"docs",
+								"{{document_id}}",
+								"pages",
+								"{{page_id}}",
+								"export"
+							]
+						},
+						"description": "Start the HTML export process. This returns a request ID that you'll use in the next step."
+					},
+					"response": []
+				},
+				{
+					"name": "Step 2: Check Export Status",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Automatically set the download_link variable when export is complete",
+									"if (pm.response.code === 200 || pm.response.code === 202) {",
+									"    const responseJson = pm.response.json();",
+									"    if (responseJson.status === 'complete' && responseJson.downloadLink) {",
+									"        pm.collectionVariables.set('download_link', responseJson.downloadLink);",
+									"        console.log('Download link set to:', responseJson.downloadLink);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{api_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/docs/{{document_id}}/pages/{{page_id}}/export/{{request_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"docs",
+								"{{document_id}}",
+								"pages",
+								"{{page_id}}",
+								"export",
+								"{{request_id}}"
+							]
+						},
+						"description": "Check the status of the export request. Keep running this until status is 'complete'."
+					},
+					"response": []
+				},
+				{
+					"name": "Step 3: Download HTML Content",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "text/html",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{download_link}}",
+							"host": [
+								"{{download_link}}"
+							]
+						},
+						"description": "Download the HTML content using the downloadLink from the completed export status. NOTE: Do not include Authorization header for S3 download."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "4. Troubleshooting (Sak Reference Only)",
+			"item": [
+				{
+					"name": "Test Page Access",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{api_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/docs/{{document_id}}/pages/{{page_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"docs",
+								"{{document_id}}",
+								"pages",
+								"{{page_id}}"
+							]
+						},
+						"description": "Test if you can access the page directly"
+					},
+					"response": []
+				},
+				{
+					"name": "Sample",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{api_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/docs",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"docs"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "https://coda.io/apis/v1"
+		},
+		{
+			"key": "api_token",
+			"value": "f059083a-79d8-413a-a135-3cb4a7f1ce46"
+		},
+		{
+			"key": "document_id",
+			"value": "I3kdM_WJkT"
+		},
+		{
+			"key": "page_id",
+			"value": "canvas-E5zOEJWlHW"
+		},
+		{
+			"key": "page_name",
+			"value": "Engineering team hub"
+		},
+		{
+			"key": "download_link",
+			"value": ""
+		},
+		{
+			"key": "request_id",
+			"value": ""
+		}
+	]
+}
