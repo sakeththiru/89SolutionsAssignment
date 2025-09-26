@@ -125,7 +125,7 @@
 									"    console.log(\"Full response:\", responseJson);",
 									"    if (responseJson.id) {",
 									"        pm.collectionVariables.set(\"request_id\", responseJson.id);",
-									"        console.log(\"✅ Request ID set to:\", responseJson.id);",
+									"        console.log(\"Request ID set to:\", responseJson.id);",
 									"    }",
 									"}"
 								],
