@@ -1,6 +1,10 @@
 import requests
 import os
 from datetime import datetime
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 API_KEY = os.getenv("NEWSAPI_KEY") # Load API key from environment variable
 BASE_URL = "https://newsapi.org/v2/everything" # support for date and keyword is only in v2 not v1
